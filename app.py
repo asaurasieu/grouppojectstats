@@ -86,7 +86,7 @@ def ask_question():
     ]
     
     response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4-turbo",
     messages=conversation,
     temperature=0.7,
     max_tokens=4000

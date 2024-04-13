@@ -107,6 +107,7 @@ def extract_keywords_from_text(text):
     logging.info("Total processing time: {}".format(end_time - start_time))
     return list(filtered_keywords)
     
+    
 def clean_keywords(keywords, words_to_remove):
     return [word for word in keywords if word not in words_to_remove]
 
@@ -150,6 +151,7 @@ def load_and_process_document(content, document_name):
         pickle.dump(paragraph_dict, file)
     
     return paragraph_dict
+
 
 # Function to load processed document content from a binary file
 def load_paragraph_dict_from_file(document_name, data_dir='./data'):
