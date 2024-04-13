@@ -1,15 +1,28 @@
 import React, { useState } from 'react';
 import './ChatPage.css';
-import userLogo from './guy.jpg'; 
+import userLogo from './guy.jpg';
 import botLogo from './bot.jpg';
 
 const ChatPage = () => {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState('');
 
-    const sendMessage = () => {
-        const newMessage = { text: inputText, isUser: true };
-        setMessages([...messages, newMessage]);
+    const sendMessage = async () => {
+        const userMessage = { text: inputText, isUser: true };
+        setMessages([...messages, userMessage]);
+
+        const response = await fetch('http://127.0.0.1:5000/ask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_input: inputText })
+        });
+
+        const data = await response.json();
+        const botMessage = { text: data.answer, isUser: false };
+        setMessages(messages => [...messages, botMessage]);
+
         setInputText('');
     };
 
@@ -23,7 +36,7 @@ const ChatPage = () => {
         <div style={{ display: 'flex', height: '100vh' }}>
             {/* Chat section */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
-                <h2 style={{marginTop: '30px'}}>Find the restaurant that best matches your requests</h2>
+                <h2 style={{ marginTop: '30px' }}>Find the restaurant that best matches your requests</h2>
                 <div className="messages-container">
                     {messages.map((message, index) => (
                         <div

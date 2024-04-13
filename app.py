@@ -6,12 +6,10 @@ from datetime import datetime
 import logging
 from flask import send_file
 import os
-from graphviz import Digraph
-import csv
 from dotenv import load_dotenv
-import json
 from flask_cors import CORS
 
+load_dotenv('.env')
 
 app = Flask(__name__, static_folder='interactions')
 CORS(app)
