@@ -33,9 +33,13 @@ load_dotenv('.env')
 
 app = Flask(__name__)
 
-repo_id = 'asaurasieu/debatebot'
-repo_url = 'https://huggingface.co/asaurasieu/debatebot'
+repo_id = 'cristinareq/Rec-Staurant'
+repo_url = 'https://huggingface.co/cristinareq/Rec-Staurant'
 hf_read_token = os.getenv('HF_READ_TOKEN')
+if hf_read_token is None:
+    print("HF_READ_TOKEN is not set")
+else:
+    print("HF_READ_TOKEN is set")
 
 def list_available_documents():
     """List available .txt and .csv documents in the repository."""
@@ -45,9 +49,6 @@ def list_available_documents():
     return docs
 
 def get_document_content(document_name):
-    if document_name == 'debate2018_.csv':
-        print("Skipping document: debate2018_.csv")
-        return []
     csv.field_size_limit(sys.maxsize)
     file_path = hf_hub_download(repo_id=repo_id, filename=document_name, use_auth_token=False)
     content = []
@@ -106,6 +107,8 @@ def extract_keywords_from_text(text):
     logging.info("Total processing time: {}".format(end_time - start_time))
     return list(filtered_keywords)
     
+def clean_keywords(keywords, words_to_remove):
+    return [word for word in keywords if word not in words_to_remove]
 
 def load_and_process_document(content, document_name):
     """
@@ -128,9 +131,15 @@ def load_and_process_document(content, document_name):
 
     # Create a dictionary to store processed paragraphs and their keywords
     paragraph_dict = {}
+    # Words to be removed from the keywords
+    words_to_remove = {'Name', 'Ranking', 'Rating','City', 'Cuisine Style','Price Range', 'Number of Reviews', 'Reviews', 'URL_TA'}
+
+
     for i, paragraph in enumerate(paragraphs):
         keywords = extract_keywords_from_text(paragraph)
-        paragraph_dict[i] = {'chunk': paragraph, 'keywords': keywords}
+        # Clean the keywords by removing specific words
+        cleaned_keywords = clean_keywords(keywords, words_to_remove)
+        paragraph_dict[i] = {'chunk': paragraph, 'keywords': cleaned_keywords}
 
     # Save processed content as before
     data_dir = os.path.join(os.getcwd(), 'data')
@@ -144,11 +153,7 @@ def load_and_process_document(content, document_name):
 
 # Function to load processed document content from a binary file
 def load_paragraph_dict_from_file(document_name, data_dir='./data'):
-    
-    if document_name == 'debate2018_csv':
-        print("Loading is skipped for document: debate2018_csv")
-        return None
-    
+        
     # Construct the full path to the binary file
     file_path = os.path.join(data_dir, f'{document_name}.pkl')
 
@@ -161,7 +166,3 @@ def load_paragraph_dict_from_file(document_name, data_dir='./data'):
 
     # If the file does not exist, return None
     return None
-
-
-            
-            

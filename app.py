@@ -88,43 +88,17 @@ def ask_question():
     ]
     
     response = openai.ChatCompletion.create(
-    model="gpt-4-turbo",
+    model="gpt-3.5-turbo",
     messages=conversation,
     temperature=0.7,
-    max_tokens=4500
+    max_tokens=4000
 )
     
     generated_response = response.choices[0].message['content'].strip()
     # Append the current interaction to the session log
-    session['conversation_log'].append((user_input, generated_response))
-    session.modified = True  # Ensure the session is marked as modified
     logging.info("Response from OpenAI API received")
-    generate_conversation_flow(session['conversation_log'], 'interactions/conversation_flow.png')
-    return jsonify({'answer': generated_response, 'conversation_saved': True})
-    
-def generate_conversation_flow(conversation_log, output_folder):
-    # Generate a timestamped file name
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    filename = f"conversation_flow_{timestamp}.png"
-    output_path = os.path.join(output_folder, filename)
-    
-    dot = Digraph(comment='Conversation Flow')
-    prev_node = None
-    for i, (user_input, bot_response) in enumerate(conversation_log):
-        user_node = f'User_{i}'
-        bot_node = f'Bot_{i}'
-        dot.node(user_node, f'User: {user_input}')
-        dot.node(bot_node, f'Robo: {bot_response}')
-        if prev_node:
-            dot.edge(prev_node, user_node)        
-        dot.edge(user_node, bot_node)
-        prev_node = bot_node
-    
-    # Save the diagram to the specified path
-    dot.render(output_path, format='png', cleanup=True)
-    logging.info(f"Conversation flow diagram saved to {output_path}")
+    return jsonify({'answer': generated_response})
         
-    
 @app.route('/search')
 def search():
     query = request.args.get('query', '')
